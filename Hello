@@ -1,0 +1,188 @@
+local TweenService = game:GetService("TweenService")
+local player = game.Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "VerbExecutor"
+gui.ResetOnSpawn = false
+
+-- Main Frame
+local mainFrame = Instance.new("Frame", gui)
+mainFrame.Size = UDim2.new(0, 450, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -225, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BorderSizePixel = 0
+mainFrame.Name = "MainFrame"
+mainFrame.Active = true
+mainFrame.Draggable = true
+
+local corner = Instance.new("UICorner", mainFrame)
+corner.CornerRadius = UDim.new(0, 10)
+
+-- Title Label
+local title = Instance.new("TextLabel", mainFrame)
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Verb Executor"
+title.TextScaled = true
+title.Font = Enum.Font.GothamBlack
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Name = "Title"
+
+local uiGradient = Instance.new("UIGradient", title)
+uiGradient.Rotation = 0
+uiGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 127, 0)),
+    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 0, 255)),
+    ColorSequenceKeypoint.new(1.0, Color3.fromRGB(139, 0, 255)),
+}
+
+-- Shaking animation
+task.spawn(function()
+    while true do
+        local offset = math.random(-2, 2)
+        local tweenInfo = TweenInfo.new(0.05, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+        local tween = TweenService:Create(title, tweenInfo, {Position = UDim2.new(0, offset, 0, offset)})
+        tween:Play()
+        tween.Completed:Wait()
+    end
+end)
+
+-- ScrollingFrame for errors on left side
+local errorFrame = Instance.new("ScrollingFrame", mainFrame)
+errorFrame.Size = UDim2.new(0, 130, 1, -60)
+errorFrame.Position = UDim2.new(0, 10, 0, 50)
+errorFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+errorFrame.BackgroundTransparency = 0.6
+errorFrame.BorderSizePixel = 0
+errorFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+errorFrame.ScrollBarThickness = 6
+errorFrame.Name = "ErrorFrame"
+
+local errCorner = Instance.new("UICorner", errorFrame)
+errCorner.CornerRadius = UDim.new(0, 6)
+
+local layout = Instance.new("UIListLayout", errorFrame)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 4)
+
+-- Function to add error messages
+local function addError(text)
+    local errLabel = Instance.new("TextLabel", errorFrame)
+    errLabel.Size = UDim2.new(1, -10, 0, 30)
+    errLabel.BackgroundTransparency = 1
+    errLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+    errLabel.Font = Enum.Font.Gotham
+    errLabel.TextSize = 14
+    errLabel.TextWrapped = true
+    errLabel.TextXAlignment = Enum.TextXAlignment.Left
+    errLabel.TextYAlignment = Enum.TextYAlignment.Center
+    errLabel.Text = text
+    errLabel.LayoutOrder = #errorFrame:GetChildren()
+
+    -- Update CanvasSize to fit all errors
+    task.wait() -- let layout update
+    errorFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+end
+
+-- TextBox (smaller because of error frame)
+local textBox = Instance.new("TextBox", mainFrame)
+textBox.Size = UDim2.new(1, -160, 0, 150)
+textBox.Position = UDim2.new(0, 150, 0, 60)
+textBox.PlaceholderText = "Enter your script here..."
+textBox.Text = ""
+textBox.TextWrapped = true
+textBox.ClearTextOnFocus = false
+textBox.Font = Enum.Font.Code
+textBox.TextSize = 16
+textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textBox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+textBox.BackgroundTransparency = 0.8
+textBox.Name = "ScriptBox"
+
+local boxCorner = Instance.new("UICorner", textBox)
+boxCorner.CornerRadius = UDim.new(0, 8)
+
+-- Execute Button
+local executeBtn = Instance.new("TextButton", mainFrame)
+executeBtn.Size = UDim2.new(0.45, 0, 0, 40)
+executeBtn.Position = UDim2.new(0.05, 0, 1, -50)
+executeBtn.Text = "Execute"
+executeBtn.Font = Enum.Font.GothamBold
+executeBtn.TextSize = 18
+executeBtn.TextColor3 = Color3.fromRGB(255, 255, 0)
+executeBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+executeBtn.Name = "ExecuteButton"
+
+local execCorner = Instance.new("UICorner", executeBtn)
+execCorner.CornerRadius = UDim.new(0, 6)
+
+-- Paste Button
+local pasteBtn = Instance.new("TextButton", mainFrame)
+pasteBtn.Size = UDim2.new(0.45, 0, 0, 40)
+pasteBtn.Position = UDim2.new(0.5, 0, 1, -50)
+pasteBtn.Text = "Paste"
+pasteBtn.Font = Enum.Font.GothamBold
+pasteBtn.TextSize = 18
+pasteBtn.TextColor3 = Color3.fromRGB(255, 255, 0)
+pasteBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+pasteBtn.Name = "PasteButton"
+
+local pasteCorner = Instance.new("UICorner", pasteBtn)
+pasteCorner.CornerRadius = UDim.new(0, 6)
+
+-- Execute logic with error catching
+executeBtn.MouseButton1Click:Connect(function()
+    local source = textBox.Text
+    if source ~= "" then
+        local success, err = pcall(function()
+            loadstring(source)()
+        end)
+        if not success then
+            addError("Error: " .. tostring(err))
+        else
+            addError("Executed successfully!")
+        end
+    else
+        addError("Error: No script entered!")
+    end
+end)
+
+-- Paste (copy textbox text to clipboard)
+pasteBtn.MouseButton1Click:Connect(function()
+    if textBox.Text ~= "" then
+        setclipboard(textBox.Text)
+        addError("Script copied to clipboard.")
+    else
+        addError("Nothing to copy!")
+    end
+end)
+
+-- Close/Show circle button
+local closeBtn = Instance.new("TextButton", gui)
+closeBtn.Size = UDim2.new(0, 40, 0, 40)
+closeBtn.Position = UDim2.new(0, 5, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 22
+closeBtn.AutoButtonColor = false
+closeBtn.Name = "CloseButton"
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(1, 0) -- circle
+
+local guiVisible = true
+closeBtn.MouseButton1Click:Connect(function()
+    guiVisible = not guiVisible
+    mainFrame.Visible = guiVisible
+    if guiVisible then
+        closeBtn.Text = "X"
+    else
+        closeBtn.Text = ">"
+    end
+end)
