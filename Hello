@@ -151,14 +151,10 @@ executeBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Paste (copy textbox text to clipboard)
 pasteBtn.MouseButton1Click:Connect(function()
-    if textBox.Text ~= "" then
-        setclipboard(textBox.Text)
-        addError("Script copied to clipboard.")
-    else
-        addError("Nothing to copy!")
-    end
+    local clipboardText = getclipboard() or ""
+    textBox.Text = clipboardText
+    addError("Pasted from clipboard.")
 end)
 
 -- Close/Show circle button
